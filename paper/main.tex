@@ -348,6 +348,7 @@
 % correct bad hyphenation here
 \hyphenation{op-tical net-works semi-conduc-tor}
 
+\usepackage{hyperref}
 
 \usepackage{amsmath}
 \DeclareMathOperator*{\argmin}{arg\,min}
@@ -403,8 +404,11 @@ Email: neutatz@gmail.com}}
 
 
 \begin{abstract}
-%\boldmath
-%\blindtext[1]
+We present an approach to a mostly unsupervised user authentication and identification based on
+mouse dynamics. Our hypothesis is that one can successfully identify a user on the basis of cursor movements.
+Our system identifies a user as unauthorized if the behavior within a 10 seconds period deviates sufficiently from the learned behavior of an authorized user.
+Our results for four users show that we can identify these as unauthorized based on their cursor dynamics with
+a false positive rate of 0\% and a false negative rate of 20\% on the authorized user data. Nevertheless, we have to research more thoroughly and use more data to validate our results. We point out that analysing cursor dynamics alone is not yet sufficient for a practical user authentication system.
 \end{abstract}
 % IEEEtran.cls defaults to using nonbold math in the Abstract.
 % This preserves the distinction between vectors and scalars. However,
@@ -437,29 +441,33 @@ user verification, mouse dynamics, anomaly detection.
 
 \section{Introduction}
 
-Authentication plays a major role in securing a system today. There are three main ways to tackle the problem of authentication. The user can be identified by knowledge (e.g. passwords, PIN), by possession (e.g. RFID, smart cards) or by the user himself/herself (e.g. voice \cite{kennedy2000radio}, face \cite{mallauran2005online}, iris \cite{chong2005iris} detection and fingerprint \cite{gupta2005efficient} recognition). \cite{pusara2004user} The first two ways have their weaknesses. The concept of possession is not bulletproof. The tokens can be stolen and/or copied.
-With increasing computation capabilities, passwords can be cracked using brute force attacks in shorter time periods. Especially when quantum computing is understood, it will be trivial to calculate almost any password. \cite{steane1998quantum}. Another problem of knowledge is the human factor. Humans forget. So you have to install processes for the case of resetting a password. These can be exploited using social engineering as a hacker used against Central Intelligence Agency (CIA) Director John Brennan. \cite{wiredSocialEng} Biometric authentication is a bit more secure, but these methods can also be cracked by e.g. by taking a photo of the finger, iris, ...
-An interesting step ahead is research on gait authentication. \cite{gafurov2006biometric} So instead of using the properties of a person, the actions and behavior is used to identify a person. The behavior of a person is really hard to fake, maybe not at all.
-So it is really interesting to apply this idea on personal computer authentication.
+Authentication plays a major role in securing a system today. There are three main ways to tackle the problem of authentication. The user can be identified by knowledge (e.g. passwords, PIN), by possession (e.g. RFID \cite{feldhofer2004strong}, smart cards \cite{deo1998authentication}) or by the user himself/herself (e.g. voice \cite{kennedy2000radio}, face \cite{mallauran2005online}, iris \cite{chong2005iris} detection and fingerprint \cite{gupta2005efficient} recognition). \cite{pusara2004user} The first two ways have their weaknesses. The concept of possession is not bulletproof. The tokens can be stolen and/or copied.
+With increasing computation capabilities, passwords can be cracked using brute force attacks in shorter time periods. Especially when quantum computing is understood, it will be trivial to calculate almost any password. \cite{steane1998quantum} Another problem of knowledge is the human factor. Humans forget. So you have to install processes for the case of resetting a password. These can be exploited using social engineering as a hacker used against Central Intelligence Agency (CIA) Director John Brennan. \cite{wiredSocialEng} Biometric authentication is a bit more secure, but these methods can also be cracked by e.g. taking a photo of the finger, iris, ...
+An interesting step ahead is research on gait authentication. \cite{gafurov2006biometric} So instead of using the properties of a person, the actions and behavior is used to identify a person. The behavior of a person is hard to fake, maybe not at all.
+So it is interesting to apply this idea on personal computer authentication.
 
 There are many ways to track the behavior of computer users, but in this paper we want to focus on the cursor position over time. This can be seen as a first step to research whether our approach works in general. Mouse tracking on its own is not enough for computer authentication since the user can navigate by keyboard only. So this model will be extended to keyboard input in the future.
 
-Monitoring the behavior of user has one main advantage over the common authentication: The user doesn't need to log off the system. So there is no way that you forget to log off. This is one of the key advantages of behavioral authentication because it less susceptible to insider attacks. According to the US State of Cybercrime Survey \cite{us2014us}, "Almost one-third (32\%) say insider crimes are more costly or damaging than incidents perpetrated by outsiders.". So this can be critical.
+Monitoring the behavior of user has one main advantage over the common authentication: The user doesn't need to log off the system. So there is no way that you forget to log off. This is one of the key advantages of behavioral authentication because it is less susceptible to insider attacks. According to the US State of Cybercrime Survey \cite{us2014us}, "Almost one-third (32\%) say insider crimes are more costly or damaging than incidents perpetrated by outsiders.". So this can be critical.
 
 The quality of an authentication method is based on its accuracy, how fast it can recognize the user and how difficult it is to circumvent it. It is extremely hard to simulate a person's behavior, so this criterion is already met for this method. So in this paper we focus on achieving also the other two.
 
+The remainder of the paper is structured as follows: Section \ref{sec:relwork} discusses the related work. Section \ref{sec:approach} introduces user
+authentication via mouse dynamics and describes a mostly unsupervised learning method for modeling user behavior. Section \ref{sec:conclusion} summarizes and discusses future research directions.
+
 %describe data
-%short description of sections
 
 \section{Related work}
+\label{sec:relwork}
 
 One of the first papers on the idea of authentication by behavioral patterns was published by Denning in 1985 \cite{denning1985requirements}. Moreover there are already a lot publications about authentication by analysing mouse dynamics. Pusara et al. show that you can differentiate users by their cursor movement with a very low error rate \cite{pusara2004user}. Zheng et al. extended their work by developing an angle-based feature set which could reduce the recording time to a time span of 20 mouse clicks. \cite{zheng2011efficient} Gamboa et al. came up with a 63-dimensional feature vector and showed the error for a different number of strokes (segment between two mouse clicks). \cite{gamboa2003identity} However, all these methods are purely supervised learning methods and based on training on data of several users.
 
 In this paper we present a mostly unsupervised user authentication system that builds a model of a user’s behavior from his/her mouse dynamics without using data from other users. Therefore this approach introduces less privacy issues. Moreover we don't use mouse events in the data. This causes a disadvantage in comparison to the papers described before, because we have less information. Therefore we can exploit less entropy. But this will change in future work.
 
 \section{User authentication via mouse dynamics}
+\label{sec:approach}
 
-As introduced in \cite{pusara2004user}, we use an unsupervised method to identify users. We model the behavior of the authorized user and apply this model on the mouse movements of any user. The idea is that if this model reproduces the given data very good, the probability that the data originated from the authorized user is very high. This corresponds to the problem an anomaly detection task. The norm is the user's model and the anomaly is an unauthorized user.
+As introduced in \cite{pusara2004user}, we use an unsupervised method to identify users. We model the behavior of the authorized user and apply this model on the mouse movements of any user. The idea is that if this model reproduces the given data very good, the probability that the data originated from the authorized user is very high. This corresponds to the problem of an anomaly detection task. The norm is the user's model and the anomaly is an unauthorized user.
 
 \subsection{Data set}
 
@@ -470,7 +478,7 @@ The coordinates are normalized by screen size.
 \subsection{Anomaly detection}
 
 To model the user behavior of an authorized user we use linear regression. The idea is to fit a model which is capable of reconstructing the training data. For example that means predicting the cursor position at time t given that you know at which position the mouse was 1, ..., k time steps ago. In this way we can calculate the
-coefficients accordingly and find the best model which excels in predicting and reconstructing sequential data. This approach was introduced by Dunning \cite{dunning2014practical}.
+coefficients accordingly and find the best model which excels in predicting and reconstructing sequential data. This approach was introduced by Dunning \cite{dunning2014practical}. This is an unsupervised problem because we can only train on records of class "authorized user". So there is no value in the label of the observations which forces us to work without labels. Reformulating this problem to be a sequence reconstruction problem makes it supervised again.
 
 To train a model we use linear regression. In the general case the model of linear regression is described in the following way:
 
@@ -517,7 +525,7 @@ The challenge of feature selection in this case is the trade-off between the inf
 \end{figure}
 
 \subsubsection{Model evaluation}
-As test set we use a two hour recording of the authorized user. Table \ref{table_model_quality} shows that training and validation error are almost the same which is a clear sign that the model doesn't suffer from overfitting. The test error is twice as high as the validation error, but is still really low. These results show that the model is really good in predicting cursor dynamics.
+As test set we use a two hour recording of the authorized user. Table \ref{table_model_quality} shows that training and validation error are almost the same which is a clear sign that the model doesn't suffer from overfitting. The mean squared test error is twice as high as the validation error, but is still very low. These results show that the model is good in predicting cursor dynamics.
 
 \begin{table}[!t]
 \renewcommand{\arraystretch}{1.3}
@@ -525,7 +533,7 @@ As test set we use a two hour recording of the authorized user. Table \ref{table
 \caption{Authorized user behavior model - accuracy (Mean squared error)}
 \label{table_model_quality}
 \centering
-\begin{tabular}{|c||c||c||c|}
+\begin{tabular}{|c||c|c|c|}
 \hline
 Metric & Training error & Validation error & Test Error\\
  & (36 min) & (24 min) & (120 min)\\
@@ -534,12 +542,16 @@ MSE & 0.00007866 & 0.00007826 & 0.00016176\\
 \hline
 Distance normed MSE & 0.0221 & 0.0183 & 0.0299\\
 \hline
+Smoothed MSE & 3.23e-07 & 3.42e-07 & 4.02e-07\\
+\hline
+Distance smoothed MSE & 0.179 & 0.168 & 0.160\\
+\hline
 \end{tabular}
 \end{table}
 
 
 \subsubsection{Error metrics}
-We need a good a good error metric to be able to compare the error of an authorized user and a non-authorized user. First, we try mean squared error (showed in equation \ref{eq:mse}). The problem of the mean squared error is that it doesn't take into account the amount of "no movement". This means if there is no movement at all it is very easy to classify and therefore the mean squared error will be small. So the amount of "no movement" matters. To avoid this effect we delete all samples which have a past of no movement (all previous k time steps doesn't change in position). We apply this procedure also on the training data which increases the accuracy and speeds up training.
+We need a good error metric to be able to compare the error of an authorized user and a non-authorized user. First, we try mean squared error (showed in equation \ref{eq:mse}). The problem of the mean squared error is that it doesn't take into account the amount of "no movement". This means if there is no movement at all it is very easy to classify and therefore the mean squared error will be small. So the amount of "no movement" matters. To avoid this effect we delete all samples which have a past of no movement (all previous k time steps doesn't change in position). We apply this procedure also on the training data which increases the accuracy and speeds up training.
 
 \begin{equation}
 \label{eq:mse}
@@ -553,15 +565,45 @@ But there is still an issue with that metric. It is harder for the model to clas
 \frac{1}{distance(y)} \sum_{i=1}^{n}  (y_{i} - a^T*x_{i})^2
 \end{equation}
 
-But this metric is still not sufficient. There are still larger error peaks analysing the data of authorized users. These originate from rapid concept drifts. This means there is no way to read the mind of the user. For example, the example wants to close an editor and moves the cursor to the exit button, but on the way to the button he realizes he made a typographical error. So he moves the cursor to the mistake. This example shows clearly that sometimes it is impossible to predict the next step.
+But this metric is still not sufficient. There are still larger error peaks analysing the data of authorized users. These originate from rapid concept drifts. This means there is no way to read the mind of the user. For example, the user wants to close an editor and moves the cursor to the exit button, but on the way to the button he realizes he made a typographical error. So he moves the cursor to the mistake. This example shows clearly that sometimes it is impossible to predict the next step.
 
-One approach to circumvent this problem is again to skip all records which are impossible to predict. But it is hard to say what impossible means. One way would be the following. We assume our model of the authorized user behavior is close to perfect whenever it is possible. This means whenever we get a higher error on an authorized user data set it is most probably a record which is impossible to predict. In order to find the right boundary we run an experiment.
+One approach to circumvent this problem is again to skip all records which are impossible to predict. But it is hard to say what impossible means. One way would be the following. We assume our model of the authorized user behavior is close to perfect whenever it is possible. This means whenever we get a higher error on an authorized user data set it is most probably a record which is impossible to predict. In order to find the right boundary we run an experiment. Figure \ref{fig_threshold} shows the smaller the threshold the smaller the resulting error (but the number of skipped records will be high). So if we set the threshold too low the error of unauthorized samples will be also low and we cannot differentiate anymore. Moreover the lower the threshold the more records are skipped and we have less data to classify on. So if the error of any record is higher than the threshold it is set to 0.
 
+\begin{figure}[!t]
+\centering
+\includegraphics[width=2.5in]{img/error_impossible_threshold.png}
+\caption{Error by threshold}
+\label{fig_threshold}
+\end{figure}
+
+It turns out that the model for the authorized user also works very well for unauthorized users. So there is no profound difference in the mean squared error. But if we set the threshold to be very small (t = 0.001), the difference is greater. The impact on the authorized data can be seen in table \ref{table_model_quality}. Smoothing the error by a threshold reduces the variance and therefore makes the test error and the validation error more alike.
+
+\subsection{Classification window}
+To find the right window for classifying whether a user is authorized or not, we run some experiments. Figure \ref{fig_window} shows the smoothed mean squared error by window size and the resulting classification for a sequence of an authorized user. Moreover the blue line shows the number of records which were classified as predictable. The straight red line is the decision boundary. When the error is greater than this threshold the sequence is classified as unauthorized. The first 100 records are used as features. This means classification can start after 3 seconds. The figure shows that the chart converges to the right classification after about 190 time steps. We have to add the time steps of building the features. In total, we need in this case 290 time steps to classify correctly. This corresponds to 9.7 seconds. Also other examples show similar characteristics. Therefore 10 seconds seems to be a good estimate for a prototype. We will have to research in more detail whether we can reduce the window size because the longer the window the longer the potential unauthorized user can use the system.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=2.5in]{img/window_size1.png}
+\caption{Error by window size on authorized sequence}
+\label{fig_window}
+\end{figure}
 
 \subsection{Evaluation}
+To decide whether a data sequence is authorized or not, we need a decision boundary. We choose it by the lowest mean squared error which is seen for unauthorized users. We recorded 4 users for 10 seconds. This data serves as the unauthorized data. Using this approach we achieve a false accept rate (FAR) of 0\%, but a very high false reject rate (FRR) of 20\% on the test set. It turns out that the distance normed error is not suitable to compare the sequences because it doesn't seem to correlate with being authorized as well as the mean squared error based on time.
 
+\section{Conclusion and future work}
+\label{sec:conclusion}
+We presented a mostly unsupervised approach to identify users by only training on the data of authorized user's mouse dynamics. The results show that mouse dynamics
+contain a good amount of information, but it does not yet suffice for practical applications. The false reject rate of 20\% is too high. Since most of the other publications also included mouse events (i.e. \cite{zheng2011efficient}, \cite{pusara2004user}) into their model. Our results cannot be compared directly.
 
-\section{Conclusion}
+Future work has to focus on adding more features like mouse and keyboard events and how to incorporate them into the overall pipeline. This means we have to find a way to merge continuous cursor data with discrete events. The model should be also able to handle non-equidistant data points. 
+
+Moreover we have to gather more user data to find a better estimate how to configure the threshold for impossible records and to set up the right decision boundary. Another way to improve the current method is to find an algorithm which better fits the mouse dynamics. One promising candidate could be Long Short-Term Memory (LSTM) Recurrent Neural Networks \cite{NIPS2014_5346}.
+
+The source code for this project can be found on Github: \url{https://github.com/FelixNeutatz/BehavioralAuthentication} 
+
+\section*{Acknowledgment}
+Thank you, to all my fellow students who helped me to gather the data on which this work is based. Moreover I like to thank Professor Zhang Aixin for making it possible to put so much time and effort in this interesting topic.
 
 % needed in second column of first page if using \IEEEpubid
 %\IEEEpubidadjcol
