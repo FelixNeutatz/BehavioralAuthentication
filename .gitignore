@@ -1,3 +1,6 @@
 *.ipynb_checkpoints
+*.iml
+/home/felix/mousetracking/BehavioralAuthentication/src/main/java/.idea/
+/home/felix/mousetracking/BehavioralAuthentication/src/main/java/ktracking/target/
 *~
 
